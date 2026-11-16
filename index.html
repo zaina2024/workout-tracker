@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<style>[hidden]{display:none!important}html,body{margin:0}</style>
+<title>Workout Program 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
+<style>
+/* Layout: one narrow column. Home = list of days. Day page = every exercise of that day; tap one to see it move. */
+/* White page on every phone, dark mode or not (client's choice). */
+:root {
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --tint: #F4F5F7;
+  --sunk: #ECEEF1;
+  --ink: #15181B;
+  --muted: #5A6067;
+  --line: #DCDFE4;
+  --accent: #2448D8;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E2E7FA;
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r: 14px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.45; -webkit-tap-highlight-color: transparent; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a { color: var(--accent); }
+
+.wrap { max-width: 640px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.view { padding-block: 20px 64px; display: grid; gap: 24px; }
+
+.h1 { font-variation-settings: "wdth" 120; font-weight: 850; text-transform: uppercase; font-size: clamp(30px, 8.6vw, 44px); line-height: .95; margin: 0; text-wrap: balance; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.muted { color: var(--muted); margin: 0; font-size: 15px; }
+
+.back { display: inline-flex; align-items: center; gap: 4px; background: none; border: 0; padding: 4px 8px 4px 0; font-weight: 650; color: var(--accent); justify-self: start; }
+.back svg { width: 20px; height: 20px; }
+
+/* Home */
+.rules { margin: 0; padding: 14px 16px; border-radius: var(--r); background: var(--tint); border: 1px solid var(--line); display: grid; gap: 6px; font-size: 15px; }
+.rules b { font-weight: 750; }
+.days { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.day {
+  width: 100%; display: grid; grid-template-columns: 56px 1fr 20px; align-items: center; gap: 14px; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px 10px 10px;
+}
+.day:hover { border-color: var(--muted); }
+.day .dn { display: grid; place-items: center; height: 56px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font-variation-settings: "wdth" 125; font-weight: 900; font-size: 26px; line-height: 1; }
+.day .dn small { display: block; font-size: 10px; font-weight: 700; letter-spacing: .1em; font-variation-settings: "wdth" 100; margin-bottom: -6px; opacity: .8; }
+.day .t { display: block; font-weight: 750; font-size: 17px; line-height: 1.2; }
+.day .s { display: block; color: var(--muted); font-size: 14px; }
+.day > svg { width: 20px; height: 20px; color: var(--muted); }
+.day.rest { background: transparent; border-style: dashed; }
+.day.rest .dn { background: var(--sunk); color: var(--muted); }
+
+/* Day page */
+.section { display: grid; gap: 8px; }
+.section h2 { margin: 0; padding-bottom: 6px; border-bottom: 2px solid var(--ink); font-variation-settings: "wdth" 112; font-weight: 800; font-size: 18px; text-transform: uppercase; letter-spacing: .02em; }
+.section .muted { font-size: 14px; }
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.ex summary { list-style: none; display: grid; grid-template-columns: 28px 1fr 24px; gap: 10px; align-items: center; padding: 14px 12px; cursor: pointer; }
+.ex summary::-webkit-details-marker { display: none; }
+.ex .i { font-weight: 800; font-size: 18px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+.ex .t { display: block; font-weight: 700; font-size: 17px; line-height: 1.25; }
+.ex .s { display: block; font-size: 14px; color: var(--muted); }
+.ex .area { color: var(--accent); font-weight: 700; }
+.ex summary > svg { width: 22px; height: 22px; color: var(--muted); transition: transform .2s; }
+.ex[open] summary > svg { transform: rotate(180deg); }
+.ex .body { padding: 0 12px 14px; display: grid; gap: 10px; }
+.demo { position: relative; margin: 0; aspect-ratio: 3 / 2; max-width: 100%; border-radius: 10px; overflow: hidden; background: var(--sunk); }
+.demo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+.demo .f1 { animation: swap 2.4s infinite; }
+@keyframes swap { 0%, 44% { opacity: 0; } 50%, 94% { opacity: 1; } 100% { opacity: 0; } }
+.demo.none { display: grid; place-items: center; padding: 16px; text-align: center; color: var(--muted); font-size: 15px; }
+.facts { margin: 0; display: grid; gap: 4px; font-size: 15px; }
+.facts div { display: grid; grid-template-columns: 74px 1fr; gap: 8px; }
+.facts dt { font-weight: 750; }
+.facts dd { margin: 0; min-width: 0; }
+
+.opt { display: grid; gap: 6px; }
+.opt h3 { margin: 0; font-size: 16px; font-weight: 750; }
+.opt p { margin: 0; font-size: 14px; color: var(--muted); }
+.or { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 13px; letter-spacing: .12em; color: var(--accent); }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+.restcard { background: var(--tint); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 6px; }
+.restcard h2 { margin: 0; font-size: 20px; font-weight: 800; }
+.powered { display: grid; justify-items: center; gap: 8px; padding-top: 20px; border-top: 1px solid var(--line); }
+.powered span { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.powered img { display: block; width: 150px; max-width: 100%; height: auto; opacity: .5; transition: opacity .2s; }
+.powered a:hover img, .powered a:focus-visible img { opacity: .9; }
+
+@media (prefers-reduced-motion: reduce) {
+  .demo:not(.none) { aspect-ratio: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .demo img { position: relative; aspect-ratio: 3 / 2; height: auto; }
+  .demo .f1 { animation: none; }
+  .ex summary > svg { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  const P = window.PROGRAM;
+  const app = document.getElementById('app');
+  const chev = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  const down = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  const back = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>';
+  const AREAS = {
+    'upper-chest': 'Upper chest', 'chest': 'Chest', 'lower-chest': 'Lower chest', 'front-delt': 'Front shoulders',
+    'side-delt': 'Side shoulders', 'rear-delt': 'Rear shoulders', 'biceps': 'Biceps', 'triceps': 'Triceps', 'forearms': 'Forearms',
+    'abs': 'Abs', 'obliques': 'Obliques', 'traps': 'Traps', 'lats': 'Lats', 'mid-back': 'Mid back', 'lower-back': 'Lower back',
+    'glutes': 'Glutes', 'quads': 'Quads', 'hamstrings': 'Hamstrings', 'adductors': 'Inner thighs', 'abductors': 'Outer hips', 'calves': 'Calves'
+  };
+  const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const areas = l => l.map(a => AREAS[a]).join(', ');
+  const DAYS = P.days.concat([P.abs]);
+  const routeOf = d => d.n === 'abs' ? 'abs' : 'day' + d.n;
+
+  const powered = '<footer class="powered"><span>Powered by</span>' +
+    '<a href="https://gobeyondgym.com" target="_blank" rel="noopener"><img src="brand/gobeyondgym-lockup.png" alt="GoBeyondGym" width="150" height="44"></a></footer>';
+
+  function home() {
+    const rows = DAYS.map(d => {
+      const count = d.sections.reduce((n, s) => n + s.items.length, 0);
+      const sub = d.n === 'abs' ? '2–3 times a week · ' + count + ' exercises'
+        : d.rest ? (d.cardio || 'No training') : count + ' exercises';
+      const dn = d.n === 'abs' ? '<span class="dn" aria-hidden="true">+</span>'
+        : '<span class="dn" aria-hidden="true"><span><small>DAY</small>' + d.n + '</span></span>';
+      return '<li><button type="button" class="day' + (d.rest ? ' rest' : '') + '" data-go="' + routeOf(d) + '">' + dn +
+        '<span><span class="t">' + (d.n === 'abs' ? 'Abs' : esc(d.rest ? 'Rest' : d.focus)) + '</span><span class="s">' + esc(sub) + '</span></span>' + chev + '</button></li>';
+    }).join('');
+    return '<main class="wrap view">' +
+      '<header style="display:grid;gap:10px"><p class="eyebrow">8-day cycle</p><h1 class="h1">' + esc(P.title) + '</h1></header>' +
+      '<div class="rules">' + P.rules.map(r => '<span><b>' + esc(r.k) + ':</b> ' + esc(r.v) + '</span>').join('') + '</div>' +
+      '<ul class="days">' + rows + '</ul>' +
+      powered + '</main>';
+  }
+
+  function demo(v) {
+    if (!v.demo) return '<div class="demo none">No demo image for this exercise yet.</div>';
+    return '<figure class="demo"><img src="img/' + v.demo + '/0.jpg" alt="' + esc(v.label) + ', start" loading="lazy" width="560" height="373">' +
+      '<img class="f1" src="img/' + v.demo + '/1.jpg" alt="' + esc(v.label) + ', finish" loading="lazy" width="560" height="373"></figure>';
+  }
+
+  function dayPage(d) {
+    const head = '<button type="button" class="back" data-go="home">' + back + 'All days</button>' +
+      '<header style="display:grid;gap:8px"><p class="eyebrow">' + (d.n === 'abs' ? '2–3 times a week' : 'Day ' + d.n + ' of 8') + '</p>' +
+      '<h1 class="h1">' + esc(d.n === 'abs' ? 'Abs' : d.rest ? 'Rest day' : d.focus) + '</h1>' +
+      (d.sub && d.n !== 'abs' ? '<p class="muted">' + esc(d.sub) + '</p>' : '') + '</header>';
+
+    if (d.rest) {
+      return '<main class="wrap view">' + head + '<div class="restcard">' +
+        (d.cardio ? '<h2>' + esc(d.cardio) + '</h2><p class="muted">' + esc(d.cardioNote) + '</p>'
+                  : '<h2>No training today</h2><p class="muted">Day 1 starts the next cycle.</p>') + '</div>' + powered + '</main>';
+    }
+
+    let n = 0;
+    const secs = d.sections.map(s => '<section class="section"><h2>' + esc(s.name) + '</h2>' +
+      (s.note ? '<p class="muted">' + esc(s.note) + '</p>' : '') +
+      s.items.map(it => {
+        n++;
+        // every option from the PDF gets its own demo, split by an "OR" line
+        const opts = it.variants.map((v, k) => (k ? '<div class="or">OR</div>' : '') +
+          '<div class="opt"><h3>' + esc(v.label) + '</h3>' + demo(v) +
+          (v.demoNote ? '<p>' + esc(v.demoNote) + '</p>' : '') + '</div>').join('');
+        return '<details class="ex"><summary><span class="i">' + n + '</span>' +
+          '<span><span class="t">' + esc(it.name) + '</span><span class="s"><span class="area">' + esc(areas(it.target.p)) + '</span>' +
+          (it.sets ? ' · ' + esc(it.sets) : '') + (it.variants.length > 1 ? ' · ' + it.variants.length + ' options' : '') + '</span></span>' + down + '</summary>' +
+          '<div class="body">' +
+            '<dl class="facts">' +
+              '<div><dt>Works</dt><dd>' + esc(areas(it.target.p)) + (it.target.s.length ? ' (also ' + esc(areas(it.target.s).toLowerCase()) + ')' : '') + '</dd></div>' +
+              '<div><dt>Sets</dt><dd>' + esc(it.sets || '3') + ' · 6–15 reps</dd></div>' +
+              (it.note ? '<div><dt>Note</dt><dd>' + esc(it.note) + '</dd></div>' : '') +
+            '</dl>' + opts + '</div></details>';
+      }).join('') + '</section>').join('');
+
+    return '<main class="wrap view">' + head + secs + powered + '</main>';
+  }
+
+  function render() {
+    const r = (location.hash || '').slice(1);
+    const d = DAYS.find(x => routeOf(x) === r);
+    app.innerHTML = d ? dayPage(d) : home();
+    window.scrollTo(0, 0);
+  }
+  app.addEventListener('click', e => {
+    const g = e.target.closest('[data-go]');
+    if (!g) return;
+    const r = g.dataset.go;
+    if (r === 'home') { if (location.hash) location.hash = ''; else render(); }
+    else location.hash = r;
+  });
+  window.addEventListener('hashchange', render);
+  render();
+})();
+</script>
+</body>
+</html>
